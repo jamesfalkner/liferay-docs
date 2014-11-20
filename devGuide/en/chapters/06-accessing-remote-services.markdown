@@ -1578,7 +1578,7 @@ A typical use case for Skinny JSON Provider is to enable a mobile app to
 retrieve data through an anonymous request, without requiring authentication.
 Fortunately, you can configure Liferay to allow anonymous access to the Skinny
 JSON Provider. The configuration varies depending on the version of Liferay you
-are using. 
+are using.
 
 For Liferay 6.1, you must add the value `getSkinny*` as a public JSON web
 service method entry in your `portal-ext.properties` file.
@@ -1586,8 +1586,11 @@ service method entry in your `portal-ext.properties` file.
     jsonws.web.service.public.methods=getSkinny*
 
 For Liferay 6.2 and later, the Skinny JSON Provider app is preconfigured to
-allow anonymous access by default. Note that this preconfiguration cannot be
-changed. 
+allow anonymous access by default, using the `@AccessControlled` annotation.
+Note that this preconfiguration cannot be changed without recompiling and
+re-deploying this plugin. Although the Skinny JSON Provider is anonymously
+accessible, it will only return results for Web Content Articles or Dynamic
+Data Lists that are readable by the `Guest` Role.
 
 Even without the need for authentication, all of Liferay's JSON web services
 require the use of the `p_auth` token for CSRF protection for environments that
@@ -1600,22 +1603,27 @@ you can disable it. The mechanism for disabling CSRF protection varies depending
 on the version of Liferay you are using.
 
 For Liferay 6.1, the only way to disable CSRF checking and the `p_auth` token
-requirement is to disable them globally, via this `portal-ext.properties` 
+requirement is to disable them globally, via this `portal-ext.properties`
 setting:
 
     json.service.auth.token.enabled=false
 
-For Liferay 6.2 and later, a better approach is to disable it only for those
-services that you believe don't need checking. To disable CSRF protection for
-the Skinny JSON Provider, you can add the value
-`com.liferay.portal.jsonwebservice.JSONWebServiceServiceAction:/skinny/` to the
+For Liferay 6.2 and later, a better approach is to disable ("whitelist") it
+only for those services that you believe don't need checking. For example,
+to disable CSRF protection for the User service, you can add the value
+`com.liferay.portal.jsonwebservice.JSONWebServiceServiceAction:/user/` to the
 list of `auth.token.ignore.origins` values in your `portal-ext.properties`:
 
     auth.token.ignore.origins=\
-        com.liferay.portal.jsonwebservice.JSONWebServiceServiceAction:/skinny/
+        com.liferay.portal.jsonwebservice.JSONWebServiceServiceAction:/user/
 
-Now that you've configured appropriate access for your Skinn JSON Provider app,
-let's call its services!
+To disable a specific method within a service, you could do this:
+
+    auth.token.ignore.origins=\
+        com.liferay.portal.jsonwebservice.JSONWebServiceServiceAction:/user/get-user-by-email-address
+
+Now that you've configured appropriate access for your web services, let's see
+how to use them!
 
 ### Retrieving Skinny Web Content Articles
 
